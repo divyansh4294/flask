@@ -252,4 +252,56 @@ if __name__ == '__main__':
 ``` 
 Visit ```http://localhiost:5000``` and click on Say Hello button to see the magic.  
 
+## Request Objects in Flask Framework
 
+1. Data from client web page is sent to server as a global request object.  
+1. To process request data, we need to import Flask module.  
+1. Some Attributes of request objects are:
+  1. Form: A Multidict with parsed form data from POST or PUT requests  
+  1. args: A Multidict with parsed content of query string  
+  1. values: A combinedMultidict with content of both form and args  
+  1. cookies: A dict with the contents of all cookies transmitted with the request  
+  1. headers: incoming request headers as dict like object  
+  1. data: contains incoming request data as string  
+  1. files: A multidict with files uploaded as part of POST or PUT request
+  1. method: Current request method (POST, GET etc)
+  1. module: Name of the current module if request was dispatched to an actual module.
+  1. routing_exception = None: if matching url failed, this is exception will be raised as part of request handling. 
+  
+Lets create a form and save it as result.html in templates folder:
+
+```
+<html>
+<body>
+  <form action = "http://localhost:5000/result" method='POST'>
+  <p>Name <input type="text" name="Name"/></p>
+  <p>Physics <input type="text" name="Physics"/></p>
+  <p>Chemistry <input type="text" name="Chemistry"/></p>
+  <p>Maths <input type="text" name="Mathematics"/></p>
+  <p><input type="submit" value="submit"/></p>
+  </form>
+</body>
+</html>
+```
+Flask code will be as follows: 
+```
+@app.route('/result',methods=['POST','GET'])
+def result():
+  if request.method=='POST':
+    result = request.form
+    return render_template('table.html', result=result)
+```
+Now table.html contains following code and saved into templates folder  
+```
+<!doctype html>
+<html><body>
+<table border=1>
+{% for key, value in result.iteritems() %}
+  <tr>
+    <th>{{key}}</th>
+    <td>{{value}}</td>
+  </tr>
+{% endfor %}
+</table>
+</body></html>
+```
