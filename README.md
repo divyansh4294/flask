@@ -81,7 +81,48 @@ app = Flask(__name__)
 def hello_world():
   return "Hello World"
 if __name__ == '__main__:
-  app.run()
+  app.run(debug=True)
 ```
 Here, ```@app.route('/hello')``` is bind the the hello_world function. 
 User can use function on :```http://127.0.0.1:5000/hello```
+
+## Variable Rules in Flask Framework
+1. To build URL's dynamically by adding variable parts to the rule parameter. 
+1. This variable marked as ```<Variablename>```. 
+1. Passed as Keyword argument to function. 
+```
+from flask import Flask
+app = Flask(__name__)
+@app.route('/hello/<name>')
+def hello_world(name):
+  return "Hello %s!" %name
+if __name__ == '__main__:
+  app.run(debug=True)
+```
+Now you can access at ```http://127.0.0.1:5000/hello/divyansh``` and output will be: ```Hello divyansh```. 
+
+## URL Building in Flask Applications
+
+1. url_for() function is very useful for dynamically building url for a specific function  
+1. Function accepts name of function as first argument and one or more keywords arguments and each corresponding to variable part of url.  
+1. It allows you to change URL in one go, without having to remember to change URL all over the place  
+1. If your application is placed outside the URL you are url_for() will handle that properly for you.  
+```
+from flask import Flask, redirect, url_for
+app = Flask(__name__)
+@app.route('/admin')
+def hello_admin():
+  return 'Hello Admin'
+@app.route('/guest/<guest>')
+def hello_guest(guest):
+  return 'Hello %s as guest' % guest
+  
+@app.route('/user/<name>')
+def hello_user(name):
+  if name=='admin':
+    return redirect(url_for('hello_admin'))
+  else:
+    return redirect(url_for('hello_guest',guest=name))
+if __name__ == '__main__':
+  app.run(debug=True)
+
