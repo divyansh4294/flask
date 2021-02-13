@@ -125,4 +125,16 @@ def hello_user(name):
     return redirect(url_for('hello_guest',guest=name))
 if __name__ == '__main__':
   app.run(debug=True)
+``` 
 
+## HTTP Methods in Flask Framework
+
+1. HTTP is the protocol to exchange or transfer hypertext  
+Some of HTTP Methods are aas follows:  
+1. GET: Send data in unencrypted form to server  
+1. HEAD: Same as GET, But without response body  
+1. POST: Used to send HTML form of data to server
+1. PUT:
+1. DELETE:
+1. TRACE:
+1. CONNECT:
