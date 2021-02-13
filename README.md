@@ -134,7 +134,122 @@ Some of HTTP Methods are aas follows:
 1. GET: Send data in unencrypted form to server  
 1. HEAD: Same as GET, But without response body  
 1. POST: Used to send HTML form of data to server
-1. PUT:
-1. DELETE:
-1. TRACE:
-1. CONNECT:
+1. PUT: Replace all current representation of target resources with uploaded content.  
+1. DELETE: Removes all current representation of target resource given by URL  
+1. TRACE: Echoes received request so that a client can see changes(if any)   
+1. CONNECT: COnvert request connection to a transparent TCP/IP tunnel to facilitate SSL-encrypted communication.  
+
+By default, Flask route responds to GET Requests.  
+
+```
+from flask import Flask, request
+app = Flask(__name__)
+@app.route('/function', methods=['POST','GET'])
+def function():
+  if request.method == "POST":
+    #Statement1
+  else:
+    #Statement2
+``` 
+
+To support this, We need to create a html form so that we can take input from their.  
+
+```
+<html>
+<body>
+  <form action="http://localhost:5000/login" method="post">
+  <p>Enter Name:</p>
+  <p><input type="text" name="nm" /></p>
+  <p><input type="submit" value="submit /></p>
+  </form>
+</body>
+</html>
+```
+So the flask code will be as follows:  
+```
+from flask import Flask, request, redirect, url_for
+app = Flask(__name__)
+@app.route('/welcome/<name>')
+def welcome(name):
+  return 'welcome %s' %name
+  
+@app.route('/login', methods=['POST','GET'])
+def login():
+  if request.method == "POST":
+    user=request.form('nm')
+    return redirect(url_for('welcome',name=user))
+  else:
+    user=request.args.get("nm")
+    return redirect(url_for('welcome',name=user))
+ 
+ if __name__ == '__main__':
+  app.run(debug=True)
+``` 
+
+## Templates in Flask Framework
+
+* Create a folder named 'templates' where all python files saved.  
+* All html files would be stored in templates and that are rendered using flask.  
+
+```
+<html>
+<body>
+<h1> Hello World!</h1>
+</body>
+</html>
+```
+Save it as ```hello.html``` in templates folder  
+
+```
+from flask import Flask, render_template
+app = Flask(__name__)
+@app.route('/')
+def index():
+  return render_template('hello.html')
+ 
+if __name__ == '__main__':
+  app.run(debug=True)
+``` 
+Now visit ```http://localhost:5000``` to check output but this time is comes from hello.html  
+
+## Static Files in Flask Framework
+
+1. Web app requires static files  
+1. JS files or CSS file supporting web pages.  
+1. All this static files shpuld be kept in Static folder  
+1. Available at /static on the application  
+1. endpoint 'static' used to generate url for static files: ```url_for('static',filename='style.css')```  
+1. app.static_url_path: can be used to specify different path for static files on web  
+1. app.static_folder: folder with static files that should be served at static_url_path.  
+
+Lets create a html file named index.html and save it into templates folder:
+```
+<html>
+<head>
+<script type = "text/javascript" src = "{{ url_for('static',filename='hello.js')}}" ></script>
+</head>
+<body>
+<input type = "button" onclick = "sayHello()" value = "Say Hello" />
+</body>
+</html>
+```
+Lets create a JavaScript file named hello.js and save it intp static folder:  
+```
+function sayHello() {
+alert("Hello World")
+}
+```
+Now, the flask code will be as follows:  
+```
+from flask import Flask, render_template
+app = Flask(__name__)
+@app.route('/')
+def index():
+  return render_template('index.html')
+ 
+if __name__ == '__main__':
+  app.run(debug=True)
+``` 
+Visit ```http://localhiost:5000``` and click on Say Hello button to see the magic.  
+
+
