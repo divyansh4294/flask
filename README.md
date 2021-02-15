@@ -305,3 +305,81 @@ Now table.html contains following code and saved into templates folder
 </table>
 </body></html>
 ```
+## Cookies in Flask Framework  
+1. A cookie's is stored in client's computer as a text file. 
+1. Its purpose is to remember and track data pertaining to client's usage for better visitor experience. 
+1. Request objects contain cookie attribute which is dictionary object of all cookie variable and corresponding values that client has transmitted.  
+1. In flask, cookies are set on response object. 
+1. Use make_response() function to get response object from return value if a view function.   
+1. Use set_cookie() function of response object to store a cookie ```response.set_cookie(key,value)```.  
+1. Use get() function of request.cookies to read the cookie ```request.cookie.get(key)```
+```
+@app.route('/setcookie',methods=['POST','GET'])
+def setcookie():
+  if request.method==['POST']:
+    user = request.form['nm']
+    resp = make_response(render_template('readcookie.html'))
+    resp.set_cookie('userID',user)
+    return resp
+```
+```
+@app.route('/getcookie')
+def getcookie():
+  name = request.cookies.get('userID')
+  return '<h1>Welcome' +name+'</h1>'
+```
+
+Whole program will be as follows:  
+```
+from flask import Flask, request, render_template, make_response
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+  return render_template("setcookie.html")
+
+@app.route('/setcookie',methods=['POST','GET'])
+def setcookie():
+  if request.method==['POST']:
+    user = request.form['nm']
+    resp = make_response(render_template('readcookie.html'))
+    resp.set_cookie('userID',user)
+    return resp
+    
+@app.route('/getcookie')
+def getcookie():
+  name = request.cookies.get('userID')
+  return '<h1>Welcome' +name+'</h1>'
+  
+if __name__=="__main__":
+  app.run(debug=True)
+```
+Create setcookie.html file to take inputs:  
+```
+<html>
+<body>
+  <form action = "/setcookie" method='POST'>
+  <p><h3>Enter User ID</h3></p>
+  <p><input type="text" name="nm"/></p>
+  <p><input type="submit" value="Login"/></p>
+  </form>
+</body>
+</html>
+```
+Create readcookie.html file to take inputs:   
+```
+<!doctype html>
+<html><body>
+<a href = 'http://localhost:5000/getcookie'><h2>Click here to read cookies</h2></a>
+</body></html>
+```
+
+## Session Objects in Flask Framework
+
+1. Unlike cookie, session is stored at server.  
+1. Session is time interval between you logged in to logged out of server and data which need to be held across this session is stored in temporary files at server.  
+1. Each session has session ID.  
+1. Session data is stored on top of cookies and server signs them cyptographically and encryption flask needs SECRET_KEY.  
+1. Session object is also dictionary object contains key value pair. 
+1. 
+1. 
