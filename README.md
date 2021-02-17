@@ -381,5 +381,209 @@ Create readcookie.html file to take inputs:
 1. Each session has session ID.  
 1. Session data is stored on top of cookies and server signs them cyptographically and encryption flask needs SECRET_KEY.  
 1. Session object is also dictionary object contains key value pair. 
-1. 
-1. 
+1. To set secret key: ```app.secret_key='asjajsj/f./f.,/dfgf/,..gf,l;'```
+1. To set a session variable: ```session(variable)=value```
+1. To release session variable: ```session.pop(variable,none)```
+1. Flask will take the value we put into session object and serialise them into a cookie.
+
+```
+from flask import Flask, request, url_for, redirect, render_template, session
+app = Flask(__name__)
+app.secret_key="any random string"
+
+@app.route("/")
+def index():
+  if 'username' in session:
+    username = session['username']
+    return 'Logged in as'+username+"<br>"+\
+           "<b><a href = "/logout">Click here to logout</a></b>"
+  return "You are not logged in <br><a href = "/login"></b>"+ \
+          "Click here to login </b></a>"
+           
+@app.route("/login", methods=['POST','GET'])
+def login():
+  if request.method==['POST']:
+    username = request.form['username']
+    return redirect(url_for('index'))
+  return render_template("session.html")
+    
+@app.route("/logout")
+def logout():
+  session.pop('username',None)
+  return redirect(url_for('index'))
+  
+  
+if __name__=="__main__":
+  app.run(debug=True)
+```
+Create a session.html file:
+``` 
+<!doctype html>
+<html><body>
+<form action = "" method = "POST">
+    <p>User Name:<input type = "text" name = "username"/></p>
+    <p><input type = "Submit" name = "login"/></p>
+</form>
+</body></html>
+```
+
+## Redirects and Errors in Flask Framework
+
+1. Flask class has a redirect() function which return a response object and redirect user to target location with specified status code.  
+1. To redirect: ```Flask.redirct(location, statuscode, response)```
+1. Standarised Status code as below:
+  1. HTTP_300_MULTIPLE_CHOICES
+  2. HTTP_301_MOVED_PERMANENTLY
+  3. HTTP_302_FOUND(Default)
+  4. HTTP_303_SEE_OTHER
+  5. HTTP_304_NOT_MODIFIED
+  6. HTTP_305_USE_PROXY
+  7. HTTP_306_RESERVED
+  8. HTTP_307_TEMPORARY_REDIRECT
+
+```
+from flask import Flask, request, url_for, redirect, render_template
+app = Flask(__name__)
+app.secret_key="any random string"
+
+@app.route("/")
+def index():
+  return render_template('login.html')
+           
+@app.route("/login", methods=['POST','GET'])
+def login():
+  if request.method==['POST'] and request.form['username'] == 'admin': 
+    return redirect(url_for('success'))
+  return redirect(url_for('index'))
+    
+@app.route("/success")
+def success():
+  return "Logged in successfully"
+  
+  
+if __name__=="__main__":
+  app.run(debug=True)
+```
+
+1. Flask has a early exit funtion with a error code abort()
+2. ```Flask.abort(code)```
+3. Code parameters are as follows:
+  1. 400 for Bad Request
+  2. 401 for Unauthenticated
+  3. 403 for Forbidden
+  4. 404 for Not Found
+  5. 406 for Not Acceptable
+  6. 415 for Unsupported Media Type
+  7. 429 Too Many Requests
+
+```
+from flask import Flask, request, url_for, redirect, render_template, abort
+app = Flask(__name__)
+app.secret_key="any random string"
+
+@app.route("/")
+def index():
+  return render_template('login.html')
+           
+@app.route("/login", methods=['POST','GET'])
+def login():
+  if request.method==['POST']:
+    if request.form['username'] == 'admin':
+      return redirect(url_for('success'))
+    else:
+      abort(401)
+  else:
+    return redirect(url_for('index'))
+    
+@app.route("/success")
+def success():
+  return "Logged in successfully"
+  
+  
+if __name__=="__main__":
+  app.run(debug=True)
+  
+```
+
+## Message Flashing in Flask Framework
+
+1. Desktop applications use dialog messages.
+2. It create a message in one view and render it in a view function called next
+3. Flask.flash() method passes a message to next request which is generally is a template ```Flask.flash(message, category(optional))```
+4. In order to remove messages from sessions, template calls ```get_flashed_messages(with_categories, category_filter)```
+5. with_categories: It is a tuple if received messages having category.
+6. category_filter: It is used when we have to display specific message.
+
+```
+from flask import Flask, request, url_for, redirect, render_template, abort, flash
+app = Flask(__name__)
+app.secret_key="any random string"
+
+@app.route("/")
+def index():
+  return render_template('index.html')
+           
+@app.route("/login", methods=['POST','GET'])
+def login():
+  error = None
+  if request.method == 'POST':
+    if request.form['username'] != 'admin' or if request.form['password'] != 'admin':
+      error='Invalid Username or password Please try again'
+    else:
+      flash('You are successfully logged in')
+      flash('Log out before login again')
+      return redirect(url_for('index'))
+  return render_template('log_in.html',error=error)
+if __name__ == "__main__":
+  app.run(debug=True)
+```
+Create a index.html file: 
+``` 
+<!doctype html>
+<html><body>
+<h1>Login</h1>
+{% if error %}
+<p><strong>Error:</strong> {{error}}
+
+<title>Flask Flashing Massages</title>
+</head>
+<body>
+<h1>Message</h1>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<ul>
+{% for message in messages %}
+<li>{{ message }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+{% endwith %}
+<p>Do you want to <a href = "{{ url_for('login')}}"><br>log in?</b></a>
+</body></html>
+```
+Create login.html file:
+```
+<!doctype html>
+<html><body>
+<h1>Login</h1>
+{% if error %}
+<p><strong>Error:</strong> {{ error }}
+{% endif %}
+<form action="" method=['POST']>
+<dl>
+<dt>Username:</dt>
+<dd>
+<input type = 'text' name ='username' value="{{request.form.username}}">
+</dd>
+<dt>password:</dt>
+<dd>
+<input type = 'password' name ='password'>
+</dd>
+</dl>
+<p><input type = "submit" name ="Login"></p>
+</form>
+</body>
+</html>
+```
+
+## File Uploading in Flask Framework
