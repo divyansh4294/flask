@@ -467,14 +467,14 @@ if __name__=="__main__":
 
 1. Flask has a early exit funtion with a error code abort()
 2. ```Flask.abort(code)```
-3. Code parameters are as follows:
-  1. 400 for Bad Request
-  2. 401 for Unauthenticated
-  3. 403 for Forbidden
-  4. 404 for Not Found
-  5. 406 for Not Acceptable
-  6. 415 for Unsupported Media Type
-  7. 429 Too Many Requests
+3. Code parameters are as follows:  
+  1.400 for Bad Request
+  1. 401 for Unauthenticated
+  1. 403 for Forbidden
+  1. 404 for Not Found
+  1. 406 for Not Acceptable
+  1. 415 for Unsupported Media Type
+  1. 429 Too Many Requests
 
 ```
 from flask import Flask, request, url_for, redirect, render_template, abort
@@ -587,3 +587,49 @@ Create login.html file:
 ```
 
 ## File Uploading in Flask Framework
+
+1. Some prerequisite is HTML form with its enctype attribute set to "multipart/form-data" and method attribute is set to POST.  
+1. URL handler fetches file from ```request.files[]``` object and save to location.
+1. first every file is saved to temporary location on server before actually saved to its ultimate location. 
+1. Destination can be hard coded or can be obtained from filename property of ``` request.files[file]``` object. 
+1. To get secure version of file name use ```from werkzeug import secure_filename``` 
+1. Define path of default upload file ``` app.config("UPLOAD_FOLDER")``` and maximum size of file (BYTES) can be configured ``` app.config("MAX_CONTENT_PATH")```
+```
+from flask import Flask, request, render_template
+from werkzeug import secure_filename
+app = Flask(__name__)
+
+@app.route("/upload")
+def upload():
+  return render_template('upload.html')
+
+@app.route("/uploader", methods=['POST','GET'])
+def uploader():
+  if request.method=='POST':
+    f = request.files['file']
+    f.save(secure_filename(f.filename))
+    return "File uploaded successfully"
+  
+if __name__=="__main__":
+  app.run(debug=True)
+```
+Create upload.html file:
+```
+<html>
+  <body>
+    <form action="http://localhost:5000/uploader" method='POST' enctype = "multipart/form-data">
+      <input type = "file" name='file' />
+      <input type = "submit" />
+    </form>
+  </body>
+</html>
+```
+
+## Extensions in Flask Framework
+
+Some of the flask extensions are as follows:
+1. Flask mail: Provides SMTP interface to flask application
+2. Flask WTF: adds rendering and validation of WTForms
+3. Flask SQLalchemy: adds dqlalchemy support to flask application
+4. Flask Sijax: Makes ajax easy to use in web applications
+
